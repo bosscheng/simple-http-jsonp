@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="jsonp.js"></script>
+</head>
+<body>
+
+<script>
+    jsonp({
+        url: 'http://xxx.com',
+        success: function (data) {
+            console.log(data);
+        },
+        error: function (data) {
+            console.error(data);
+        }
+    });
+
+    jsonp({
+        url: 'http://xxx.com',
+        jsonp: 'callback1',
+        jsonpCallback: 'xxx',
+        data: {
+            a: 1,
+            b: 1
+        },
+        success: function (data) {
+            console.log(data);
+        },
+        error: function (data) {
+            console.error(data);
+        }
+    })
+
+</script>
+</body>
+</html>

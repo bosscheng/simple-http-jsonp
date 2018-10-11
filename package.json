@@ -1,0 +1,5 @@
+{
+  "name": "simple-http-jsonp",
+  "version": "0.0.1",
+  "description": "jsonp 请求，aip 与 jquery 版本的一样。"
+}

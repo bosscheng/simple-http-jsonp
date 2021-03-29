@@ -22,7 +22,7 @@
         //
         for (var i = 0, length = args.length; i < length; i++) {
             var source = args[i];
-            for (var key in  args[i]) {
+            for (var key in args[i]) {
                 if (source[key] !== undefined) {
                     target[key] = source[key];
                 }
@@ -62,11 +62,9 @@
             if (!scope && _isArray) {
                 params.add(value.name, value.value);
 
-            }
-            else if (traditional ? _isArray(value) : isObject(value)) {
+            } else if (traditional ? _isArray(value) : isObject(value)) {
                 serialize(params, value, traditional, key);
-            }
-            else {
+            } else {
                 params.add(key, value);
             }
         }
@@ -107,6 +105,26 @@
             }
         }
 
+        try {
+            var q = {};
+            var promise = new Promise(function (resolve, reject) {
+                q.resolve = resolve;
+                q.reject = reject;
+            });
+
+            promise.resolve = q.resolve;
+            promise.reject = q.reject;
+
+            settings.promise = promise;
+        } catch (e) {
+            //
+            settings.promise = {
+                resolve: noop,
+                reject: noop
+            };
+        }
+
+
         var hasPlaceholder = /=\?/.test(settings.url);
         if (!hasPlaceholder) {
             var jsonpCallback = (settings.jsonp || 'callback') + '=?';
@@ -138,12 +156,14 @@
             window.clearTimeout(abortTimeout);
             xhr.abort();
             settings.error(error);
+            settings.promise.reject(error);
             _removeScript();
         }
 
         window[callbackName] = function (data) {
             window.clearTimeout(abortTimeout);
             settings.success(data);
+            settings.promise.resolve(data);
             _removeScript();
         };
 
@@ -167,6 +187,7 @@
             abortTimeout = window.setTimeout(function () {
                 xhr.abort();
                 settings.error('timeout');
+                settings.promise.reject('timeout');
                 _removeScript();
             }, settings.timeout);
         }
@@ -187,6 +208,13 @@
 
             delete window[callbackName];
         }
+
+        // add abort method
+        options.promise.abort = function () {
+            xhr.abort();
+        };
+
+        return settings.promise;
     }
 
 
